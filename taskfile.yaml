@@ -1,0 +1,20 @@
+version: '3'
+
+includes:
+  runtime:
+    taskfile: ./go-runtime/taskfile.yaml
+    dir: ./go-runtime
+  sdk:
+    taskfile: ./go-sdk/taskfile.yaml
+    dir: ./go-sdk
+
+tasks:
+  sources:
+    aliases: [src]
+    cmds:
+      - task: runtime:sources
+      - task: sdk:sources
+  binaries:
+    aliases: [bin]
+    cmds:
+      - task: runtime:binaries

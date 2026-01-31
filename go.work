@@ -1,6 +1,6 @@
 go 1.25.5
 
 use (
-    ./go-runtime
-    ./go-sdk
+	./go-runtime
+	./go-sdk
 )
