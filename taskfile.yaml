@@ -2,8 +2,8 @@ version: '3'
 
 includes:
   engine:
-    taskfile: ./go-runtime/taskfile.yaml
-    dir: ./go-runtime
+    taskfile: ./go-engine/taskfile.yaml
+    dir: ./go-engine
   sdk:
     taskfile: ./go-sdk/taskfile.yaml
     dir: ./go-sdk
