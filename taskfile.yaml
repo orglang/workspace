@@ -1,20 +1,48 @@
 version: '3'
 
 includes:
-  runtime:
+  engine:
     taskfile: ./go-runtime/taskfile.yaml
     dir: ./go-runtime
   sdk:
     taskfile: ./go-sdk/taskfile.yaml
     dir: ./go-sdk
+  stack:
+    taskfile: ./stack/taskfile.yaml
+    dir: ./stack
 
 tasks:
   sources:
     aliases: [src]
+    desc: Check all sources
     cmds:
-      - task: runtime:sources
+      - task: engine:sources
       - task: sdk:sources
+
   binaries:
-    aliases: [bin]
+    aliases: [bins]
+    desc: Build all binaries if checks passed
     cmds:
-      - task: runtime:binaries
+      - task: engine:binaries
+
+  packages:
+    aliases: [pkgs]
+    desc: Build all packages if checks passed
+    deps:
+      - task: engine:tests
+        vars:
+          LVL: it
+      - task: sdk:tests
+        vars:
+          LVL: it
+    cmds:
+      - cmd: docker buildx bake
+
+  stack:
+    desc: Build specified stack if checks passed
+    deps:
+      - task: engine:tests
+        vars:
+          LVL: e2e
+    cmds:
+      - cmd: echo stacks were built

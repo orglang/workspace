@@ -1,0 +1,28 @@
+---
+name: orglang
+
+networks:
+  orglang:
+    name: orglang
+    external: false
+
+configs:
+  engine:
+    file: ${CONF_DIR}/application.yaml
+
+services:
+  engine:
+    image: orglang/go-engine:latest
+    networks:
+      - orglang
+    depends_on:
+      schema:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    configs:
+      - source: engine
+        target: /orglang/application.yaml
+    labels:
+      image.key: orglang/go-engine
+ 

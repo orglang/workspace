@@ -1,0 +1,69 @@
+---
+name: postgres
+
+networks:
+  orglang:
+    name: orglang
+    external: false
+
+services:
+  storage:
+    image: postgres:alpine
+    networks:
+      - orglang
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      image.key: orglang/postgres
+
+  database:
+    image: orglang/pg-operator:latest
+    networks:
+      - orglang
+    depends_on:
+      storage:
+        condition: service_healthy
+    command: >-
+      --show-banner=false
+      --classpath=/liquibase/changelog
+      --changelog-file=dba/changelog.yaml
+      --url=jdbc:postgresql://storage:5432/postgres
+      --liquibase-schema-name=public
+      --default-schema-name=public
+      --username=postgres
+      --password=password
+      update
+      -Ddatabase.name=orglang
+      -Downer.username=orglang
+      -Downer.password=orglang
+    labels:
+      image.key: orglang/postgres
+
+  schema:
+    image: orglang/pg-operator:latest
+    networks:
+      - orglang
+    depends_on:
+      database:
+        condition: service_completed_successfully
+    command: >-
+      --show-banner=false
+      --classpath=/liquibase/changelog
+      --changelog-file=owner/changelog.yaml
+      --url=jdbc:postgresql://storage:5432/orglang
+      --liquibase-schema-name=public
+      --default-schema-name=orglang
+      --username=orglang
+      --password=orglang
+      update
+      -Dschema.name=orglang
+    labels:
+      image.key: orglang/postgres

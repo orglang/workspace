@@ -1,0 +1,24 @@
+version: '3'
+
+vars:
+  REPO_MODE: n/a  # n/a, ro, rw
+  DB:
+    map:
+      commons: postgres
+
+tasks:
+  stand:*:
+    desc: Start specified stand
+    vars:
+      OPS: '{{index .MATCH 0}}'
+    cmds:
+      - cmd: >-
+          docker compose
+          --file ops/{{index .DB .OPS}}.compose.yaml
+          --file ops/engine.compose.yaml
+          --env-file ops/{{.OPS}}/.env
+          up
+          --remove-orphans
+          --pull missing
+          --quiet-pull
+          --detach
