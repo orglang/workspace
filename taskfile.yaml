@@ -37,10 +37,9 @@ tasks:
 
   stack:*:
     desc: Build specified stack if checks passed
-    deps:
-      - task: stand:{{index .MATCH 0}}
-      # - task: engine:tests:e2e
     cmds:
+      - task: stand:{{index .MATCH 0}}
+      - task: engine:tests:e2e
       - cmd: echo stack were built
 
   stand:*:
