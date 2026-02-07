@@ -4,13 +4,13 @@ WORKDIR /orglang
 
 COPY . .
 
-RUN go build -o engine go-engine/app/main.go
+RUN go build -o engine engine/app/main.go
 
 FROM alpine
 
 WORKDIR /orglang
 
-COPY go-engine/app/reference.yaml .
+COPY engine/app/reference.yaml .
 
 COPY --from=builder /orglang/engine .
 

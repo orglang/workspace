@@ -11,5 +11,5 @@ target "engine" {
 target "postgres" {
   dockerfile = "liquibase.Dockerfile"
   tags = ["orglang/pg-operator:latest"]
-  context = "go-engine/db/postgres"
+  context = "engine/db/postgres"
 }
