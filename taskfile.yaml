@@ -2,19 +2,21 @@ version: '3'
 
 includes:
   engine:
-    taskfile: ./go-engine/taskfile.yaml
-    dir: ./go-engine
+    taskfile: ./engine/taskfile.yaml
+    dir: ./engine
   sdk:
-    taskfile: ./go-sdk/taskfile.yaml
-    dir: ./go-sdk
-  stack:
-    taskfile: ./stack/taskfile.yaml
-    dir: ./stack
+    taskfile: ./sdk/taskfile.yaml
+    dir: ./sdk
+
+vars:
+  DB:
+    map:
+      commons: postgres
 
 tasks:
   sources:
     aliases: [src]
-    desc: Check all sources
+    desc: Build all sources if checks passed
     cmds:
       - task: engine:sources
       - task: sdk:sources
@@ -27,7 +29,7 @@ tasks:
 
   packages:
     aliases: [pkgs]
-    desc: Build all packages if checks passed
+    desc: Build all distros if checks passed
     deps:
       - task: engine:tests
         vars:
@@ -38,11 +40,29 @@ tasks:
     cmds:
       - cmd: docker buildx bake
 
-  stack:
+  stack:*:
     desc: Build specified stack if checks passed
     deps:
-      - task: engine:tests
-        vars:
-          LVL: e2e
+      - task: stand:{{index .MATCH 0}}
+      # - task: engine:tests
+      #   vars:
+      #     LVL: e2e
     cmds:
-      - cmd: echo stacks were built
+      - cmd: echo stack were built
+
+  stand:*:
+    desc: Start specified stand
+    vars:
+      OPS: '{{index .MATCH 0}}'
+    dir: stack
+    cmds:
+      - cmd: >-
+          docker compose
+          --file ops/{{index .DB .OPS}}.compose.yaml
+          --file ops/engine.compose.yaml
+          --env-file ops/{{.OPS}}/.env
+          up
+          --remove-orphans
+          --pull missing
+          --quiet-pull
+          --detach
